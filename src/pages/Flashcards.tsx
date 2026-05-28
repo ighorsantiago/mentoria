@@ -32,7 +32,7 @@ export function Flashcards({ profile }: FlashcardsPageProps) {
     // Tela de configuração
     if (!started || (fc.cards.length === 0 && !fc.loading)) {
         return (
-            <div className="flex flex-col gap-8 p-6 max-w-md mx-auto w-full">
+            <div className="flex flex-col gap-8 px-8 py-10 max-w-md mx-auto w-full">
                 <div>
                     <h1 className="text-2xl font-extrabold" style={{ color: theme.textPrimary }}>
                         Flashcards 🃏
@@ -201,7 +201,7 @@ export function Flashcards({ profile }: FlashcardsPageProps) {
 
     // Flashcard + Explicação automática em caso de erro persistente
     return (
-        <div className="flex flex-col gap-6 p-6 max-w-md mx-auto w-full">
+        <div className="flex flex-col gap-6 px-8 py-10 max-w-md mx-auto w-full">
             {/* Progresso */}
             <div className="flex items-center justify-between text-xs" style={{ color: theme.textMuted }}>
                 <span>{fc.currentIndex + 1} / {fc.cards.length}</span>

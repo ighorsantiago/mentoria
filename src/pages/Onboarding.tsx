@@ -62,7 +62,7 @@ export function Onboarding() {
 
     return (
         <div
-            className="min-h-screen flex flex-col items-center justify-center px-6 py-10"
+            className="min-h-screen flex flex-col items-center justify-center px-8 py-12 md:px-16"
             style={{ backgroundColor: theme.bgPrimary }}
         >
             <div className="w-full max-w-lg flex flex-col gap-6">
@@ -195,7 +195,7 @@ export function Onboarding() {
                                         <button
                                             key={s}
                                             onClick={() => toggleSubject(s)}
-                                            className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer"
+                                            className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer"
                                             style={{
                                                 backgroundColor: selected ? theme.accentGlow : theme.bgInput,
                                                 border: `1px solid ${selected ? theme.accent : theme.border}`,

@@ -42,15 +42,39 @@ export function useAuth() {
     })
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const profile = await getUserProfile(user.uid)
-                setState({ user, profile, loading: false, error: null })
-            } else {
+        // Timeout de segurança: se o Firebase não responder em 6s, libera a tela de login
+        const fallback = setTimeout(() => {
+            setState(s => s.loading ? { ...s, loading: false } : s)
+        }, 6000)
+
+        const unsub = onAuthStateChanged(
+            auth,
+            async (user) => {
+                clearTimeout(fallback)
+                if (user) {
+                    try {
+                        const profile = await getUserProfile(user.uid)
+                        setState({ user, profile, loading: false, error: null })
+                    } catch {
+                        // Perfil não encontrado — trata como deslogado
+                        setState({ user: null, profile: null, loading: false, error: null })
+                    }
+                } else {
+                    setState({ user: null, profile: null, loading: false, error: null })
+                }
+            },
+            (err) => {
+                // Erro de inicialização do Firebase (config inválida, sem internet, etc.)
+                clearTimeout(fallback)
+                console.error('Firebase Auth error:', err)
                 setState({ user: null, profile: null, loading: false, error: null })
             }
-        })
-        return unsub
+        )
+
+        return () => {
+            clearTimeout(fallback)
+            unsub()
+        }
     }, [])
 
     async function register(

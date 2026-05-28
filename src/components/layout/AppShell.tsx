@@ -118,7 +118,7 @@ export function AppShell({ profile, onLogout, children }: AppShellProps) {
             </aside>
 
             {/* Conteúdo principal */}
-            <main className="flex-1 flex flex-col min-h-0 pb-16 md:pb-0">
+            <main className="flex-1 flex flex-col min-h-0 pb-16 md:pb-0 overflow-y-auto">
                 {children}
             </main>
 

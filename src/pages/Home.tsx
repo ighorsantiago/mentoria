@@ -31,7 +31,7 @@ export function Home({ profile, badges }: HomeProps) {
     ]
 
     return (
-        <div className="flex flex-col gap-8 p-6 max-w-2xl mx-auto w-full">
+        <div className="flex flex-col gap-8 px-8 py-10 max-w-2xl mx-auto w-full">
             {/* Saudação */}
             <div>
                 <h1 className="text-2xl font-extrabold" style={{ color: theme.textPrimary }}>
