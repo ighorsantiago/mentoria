@@ -10,6 +10,22 @@ import { auth } from '../lib/firebase'
 import { getUserProfile, createUserProfile } from '../lib/firestore'
 import type { UserProfile, Subject, DifficultyLevel } from '../types'
 
+// Cache do perfil no localStorage para carregamento instantâneo
+const CACHE_KEY = 'mentoria:profile_cache'
+
+function saveCache(profile: UserProfile) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(profile)) } catch {}
+}
+function loadCache(): UserProfile | null {
+    try {
+        const raw = localStorage.getItem(CACHE_KEY)
+        return raw ? (JSON.parse(raw) as UserProfile) : null
+    } catch { return null }
+}
+function clearCache() {
+    try { localStorage.removeItem(CACHE_KEY) } catch {}
+}
+
 // Traduz código de erro do Firebase para mensagem amigável
 function parseFirebaseError(code: string): string {
     const map: Record<string, string> = {
@@ -29,23 +45,24 @@ function parseFirebaseError(code: string): string {
 interface AuthState {
     user: User | null
     profile: UserProfile | null
-    loading: boolean
+    loading: boolean  // true enquanto Firebase não confirmou a sessão
     error: string | null
 }
 
 export function useAuth() {
+    // Carrega cache imediatamente — se existir, app abre na hora sem spinner
     const [state, setState] = useState<AuthState>({
         user: null,
-        profile: null,
+        profile: loadCache(),
         loading: true,
         error: null,
     })
 
     useEffect(() => {
-        // Timeout de segurança: se o Firebase não responder em 6s, libera a tela de login
+        // Fallback reduzido: se Firebase não responder em 2.5s, libera a tela de login
         const fallback = setTimeout(() => {
             setState(s => s.loading ? { ...s, loading: false } : s)
-        }, 6000)
+        }, 2500)
 
         const unsub = onAuthStateChanged(
             auth,
@@ -54,20 +71,23 @@ export function useAuth() {
                 if (user) {
                     try {
                         const profile = await getUserProfile(user.uid)
+                        if (profile) saveCache(profile)
                         setState({ user, profile, loading: false, error: null })
                     } catch {
                         // Perfil não encontrado — trata como deslogado
+                        clearCache()
                         setState({ user: null, profile: null, loading: false, error: null })
                     }
                 } else {
+                    // Firebase confirmou que não há sessão ativa
+                    clearCache()
                     setState({ user: null, profile: null, loading: false, error: null })
                 }
             },
             (err) => {
-                // Erro de inicialização do Firebase (config inválida, sem internet, etc.)
                 clearTimeout(fallback)
                 console.error('Firebase Auth error:', err)
-                setState({ user: null, profile: null, loading: false, error: null })
+                setState(s => ({ ...s, loading: false }))
             }
         )
 
@@ -123,6 +143,7 @@ export function useAuth() {
     }
 
     async function logout() {
+        clearCache()
         await signOut(auth)
         setState({ user: null, profile: null, loading: false, error: null })
     }
@@ -130,6 +151,7 @@ export function useAuth() {
     function refreshProfile() {
         if (!state.user) return
         getUserProfile(state.user.uid).then(profile => {
+            if (profile) saveCache(profile)
             setState(s => ({ ...s, profile }))
         })
     }

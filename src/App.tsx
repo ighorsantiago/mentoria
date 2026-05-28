@@ -12,7 +12,7 @@ import { getBadges, updateStreak } from './lib/firestore'
 import { theme } from './themes'
 
 function AppContent() {
-    const { user, profile, loading, logout } = useAuth()
+    const { profile, loading, logout } = useAuth()
     const [badges, setBadges] = useState<string[]>([])
 
     useEffect(() => {
@@ -22,7 +22,8 @@ function AppContent() {
         }
     }, [profile?.uid])
 
-    if (loading) {
+    // Exibe spinner APENAS se ainda não há perfil em cache E o Firebase ainda não respondeu
+    if (loading && !profile) {
         return (
             <div
                 className="min-h-screen flex items-center justify-center"
@@ -41,7 +42,8 @@ function AppContent() {
         )
     }
 
-    if (!user || !profile) {
+    // Sem perfil (não autenticado ou sessão expirada confirmada pelo Firebase)
+    if (!profile) {
         return (
             <Routes>
                 <Route path="/" element={<Onboarding />} />
@@ -51,6 +53,7 @@ function AppContent() {
         )
     }
 
+    // Perfil disponível (cache ou Firebase confirmado) — abre o app imediatamente
     return (
         <AppShell profile={profile} onLogout={logout}>
             <Routes>

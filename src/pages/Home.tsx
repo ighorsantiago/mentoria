@@ -123,8 +123,11 @@ export function Home({ profile, badges }: HomeProps) {
             </div>
 
             {/* Matérias do perfil */}
-            <div>
-                <p className="text-sm font-semibold mb-3" style={{ color: theme.textSecondary }}>
+            <div
+                className="rounded-2xl p-5 flex flex-col gap-3"
+                style={{ backgroundColor: theme.bgCard, border: `1px solid ${theme.border}` }}
+            >
+                <p className="text-sm font-semibold" style={{ color: theme.textSecondary }}>
                     Suas matérias
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -134,7 +137,7 @@ export function Home({ profile, badges }: HomeProps) {
                             onClick={() => navigate(`/chat?subject=${s}`)}
                             className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer"
                             style={{
-                                backgroundColor: theme.bgCard,
+                                backgroundColor: theme.bgInput,
                                 border: `1px solid ${theme.border}`,
                                 color: theme.textSecondary,
                             }}
@@ -149,8 +152,11 @@ export function Home({ profile, badges }: HomeProps) {
 
             {/* Conquistas recentes */}
             {badges.length > 0 && (
-                <div>
-                    <div className="flex items-center gap-2 mb-3">
+                <div
+                    className="rounded-2xl p-5 flex flex-col gap-3"
+                    style={{ backgroundColor: theme.bgCard, border: `1px solid ${theme.border}` }}
+                >
+                    <div className="flex items-center gap-2">
                         <Award size={16} style={{ color: theme.xp }} />
                         <p className="text-sm font-semibold" style={{ color: theme.textSecondary }}>
                             Conquistas
@@ -165,7 +171,7 @@ export function Home({ profile, badges }: HomeProps) {
                                     key={b}
                                     className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs"
                                     style={{
-                                        backgroundColor: theme.bgCard,
+                                        backgroundColor: theme.bgInput,
                                         border: `1px solid ${theme.border}`,
                                         color: theme.textSecondary,
                                     }}
