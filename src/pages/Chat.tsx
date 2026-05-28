@@ -8,7 +8,11 @@ import { MessageBubble } from '../components/chat/MessageBubble'
 import type { UserProfile, Subject } from '../types'
 import { SUBJECT_LABELS } from '../types'
 
-const ALL_SUBJECTS: Subject[] = ['matematica', 'portugues', 'fisica', 'quimica', 'biologia', 'historia', 'geografia', 'ingles']
+const ALL_SUBJECTS: Subject[] = [
+    'matematica', 'portugues', 'redacao', 'fisica', 'quimica',
+    'biologia', 'ciencias', 'historia', 'geografia', 'ingles',
+    'espanhol', 'artes', 'educacao_fisica', 'filosofia', 'sociologia',
+]
 
 interface ChatPageProps {
     profile: UserProfile
@@ -38,7 +42,7 @@ export function Chat({ profile }: ChatPageProps) {
         uid: profile.uid,
         conversationId: conversationId ?? 'temp',
         subject: selectedSubject,
-        difficulty: profile.difficulty,
+        difficulties: profile.difficulties,
         studentName: profile.name,
     })
 

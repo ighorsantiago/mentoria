@@ -31,12 +31,19 @@ export const theme = {
     subjects: {
         matematica: '#3B82F6',
         portugues: '#8B5CF6',
+        redacao: '#A78BFA',
         fisica: '#06B6D4',
         quimica: '#10B981',
         biologia: '#22C55E',
+        ciencias: '#34D399',
         historia: '#F59E0B',
         geografia: '#F97316',
         ingles: '#EC4899',
+        espanhol: '#F43F5E',
+        artes: '#C084FC',
+        educacao_fisica: '#84CC16',
+        filosofia: '#6366F1',
+        sociologia: '#14B8A6',
     },
 
     // Bordas

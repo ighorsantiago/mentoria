@@ -3,12 +3,19 @@
 export type Subject =
     | 'matematica'
     | 'portugues'
+    | 'redacao'
     | 'fisica'
     | 'quimica'
     | 'biologia'
+    | 'ciencias'
     | 'historia'
     | 'geografia'
     | 'ingles'
+    | 'espanhol'
+    | 'artes'
+    | 'educacao_fisica'
+    | 'filosofia'
+    | 'sociologia'
 
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5
 
@@ -33,12 +40,12 @@ export interface UserProfile {
     email: string
     parentEmail: string
     subjects: Subject[]
-    difficulty: DifficultyLevel
+    difficulties: Partial<Record<Subject, DifficultyLevel>>   // por matéria
     plan: Plan
     xp: number
     level: number
     streak: number
-    lastStudyDate: string | null  // ISO date string
+    lastStudyDate: string | null
     createdAt: string
 }
 
@@ -118,10 +125,10 @@ export interface Badge {
 // ──────────────────────────────────────────────
 export interface StudySession {
     id: string
-    date: string              // YYYY-MM-DD
+    date: string
     durationMin: number
     subject: Subject
-    quizScore: number | null  // 0-100
+    quizScore: number | null
     flashcardsReviewed: number
     xpEarned: number
 }
@@ -134,9 +141,9 @@ export const XP_REWARDS = {
     quiz_completed: 15,
     quiz_perfect: 30,
     flashcard_correct: 5,
-    flashcard_wrong: 1,    // mesmo errando ganha XP (esforço)
+    flashcard_wrong: 1,
     daily_login: 10,
-    streak_bonus: 5,       // por dia de streak
+    streak_bonus: 5,
 } as const
 
 export const LEVEL_THRESHOLDS = [
@@ -174,12 +181,19 @@ export function getXPForNextLevel(xp: number): { current: number; needed: number
 export const SUBJECT_LABELS: Record<Subject, string> = {
     matematica: 'Matemática',
     portugues: 'Português',
+    redacao: 'Redação',
     fisica: 'Física',
     quimica: 'Química',
     biologia: 'Biologia',
+    ciencias: 'Ciências',
     historia: 'História',
     geografia: 'Geografia',
     ingles: 'Inglês',
+    espanhol: 'Espanhol',
+    artes: 'Artes',
+    educacao_fisica: 'Ed. Física',
+    filosofia: 'Filosofia',
+    sociologia: 'Sociologia',
 }
 
 export const DIFFICULTY_LABELS: Record<DifficultyLevel, string> = {

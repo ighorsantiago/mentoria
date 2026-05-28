@@ -7,7 +7,15 @@ import { SUBJECT_LABELS, DIFFICULTY_LABELS } from '../types'
 
 type Step = 'welcome' | 'name' | 'subjects' | 'difficulty' | 'parent' | 'password'
 
-const ALL_SUBJECTS: Subject[] = ['matematica', 'portugues', 'fisica', 'quimica', 'biologia', 'historia', 'geografia', 'ingles']
+const ALL_SUBJECTS: Subject[] = [
+    'matematica', 'portugues', 'redacao',
+    'fisica', 'quimica', 'biologia', 'ciencias',
+    'historia', 'geografia',
+    'ingles', 'espanhol',
+    'artes', 'educacao_fisica', 'filosofia', 'sociologia',
+]
+
+const STEPS: Step[] = ['welcome', 'name', 'subjects', 'difficulty', 'parent', 'password']
 
 export function Onboarding() {
     const { register, loading, error } = useAuth()
@@ -17,26 +25,48 @@ export function Onboarding() {
     const [password, setPassword] = useState('')
     const [parentEmail, setParentEmail] = useState('')
     const [subjects, setSubjects] = useState<Subject[]>([])
-    const [difficulty, setDifficulty] = useState<DifficultyLevel>(3)
+    const [difficulties, setDifficulties] = useState<Partial<Record<Subject, DifficultyLevel>>>({})
+    const [parentEmailError, setParentEmailError] = useState('')
 
-    const steps: Step[] = ['welcome', 'name', 'subjects', 'difficulty', 'parent', 'password']
-    const currentIndex = steps.indexOf(step)
-    const progress = ((currentIndex) / (steps.length - 1)) * 100
+    const currentIndex = STEPS.indexOf(step)
+    const progress = (currentIndex / (STEPS.length - 1)) * 100
 
     function toggleSubject(s: Subject) {
-        setSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
+        setSubjects(prev =>
+            prev.includes(s)
+                ? prev.filter(x => x !== s)
+                : [...prev, s]
+        )
+    }
+
+    function setSubjectDifficulty(s: Subject, d: DifficultyLevel) {
+        setDifficulties(prev => ({ ...prev, [s]: d }))
+    }
+
+    function validateParentEmail(): boolean {
+        if (parentEmail && parentEmail === email) {
+            setParentEmailError('O e-mail dos responsáveis não pode ser o mesmo do aluno.')
+            return false
+        }
+        if (parentEmail && !parentEmail.includes('@')) {
+            setParentEmailError('E-mail inválido.')
+            return false
+        }
+        setParentEmailError('')
+        return true
     }
 
     async function handleFinish() {
-        await register(email, password, name, parentEmail, subjects, difficulty)
+        await register(email, password, name, parentEmail, subjects, difficulties)
     }
 
     return (
         <div
-            className="min-h-screen flex flex-col items-center justify-center p-6"
+            className="min-h-screen flex flex-col items-center justify-center px-6 py-10"
             style={{ backgroundColor: theme.bgPrimary }}
         >
-            <div className="w-full max-w-md flex flex-col gap-8">
+            <div className="w-full max-w-lg flex flex-col gap-6">
+
                 {/* Logo */}
                 <div className="text-center">
                     <span className="text-3xl font-extrabold" style={{ color: theme.accentLight }}>
@@ -46,7 +76,7 @@ export function Onboarding() {
 
                 {/* Progress bar */}
                 {step !== 'welcome' && (
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.bgCard }}>
+                    <div className="h-1.5 rounded-full overflow-hidden mx-2" style={{ backgroundColor: theme.bgCard }}>
                         <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{ width: `${progress}%`, backgroundColor: theme.accent }}
@@ -54,15 +84,16 @@ export function Onboarding() {
                     </div>
                 )}
 
-                {/* Cards de cada step */}
+                {/* Card */}
                 <div
                     className="rounded-3xl p-8 flex flex-col gap-6"
                     style={{ backgroundColor: theme.bgCard, border: `1px solid ${theme.border}` }}
                 >
-                    {/* Step: Boas-vindas */}
+
+                    {/* ── Step: Boas-vindas ── */}
                     {step === 'welcome' && (
                         <>
-                            <div className="flex flex-col items-center gap-4 text-center">
+                            <div className="flex flex-col items-center gap-4 text-center py-2">
                                 <div
                                     className="w-16 h-16 rounded-2xl flex items-center justify-center"
                                     style={{ backgroundColor: theme.accentGlow }}
@@ -72,7 +103,7 @@ export function Onboarding() {
                                 <h1 className="text-2xl font-extrabold" style={{ color: theme.textPrimary }}>
                                     Bem-vindo ao MentorIA!
                                 </h1>
-                                <p className="text-sm leading-relaxed" style={{ color: theme.textSecondary }}>
+                                <p className="text-sm leading-relaxed max-w-sm" style={{ color: theme.textSecondary }}>
                                     Seu tutor inteligente para te ajudar a estudar de forma mais eficiente e divertida.
                                     Vamos configurar seu perfil em menos de 2 minutos.
                                 </p>
@@ -89,7 +120,7 @@ export function Onboarding() {
                         </>
                     )}
 
-                    {/* Step: Nome e email */}
+                    {/* ── Step: Nome e email ── */}
                     {step === 'name' && (
                         <>
                             <div>
@@ -106,7 +137,7 @@ export function Onboarding() {
                                     placeholder="Seu nome"
                                     value={name}
                                     onChange={e => setName(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                                     style={{
                                         backgroundColor: theme.bgInput,
                                         border: `1px solid ${theme.border}`,
@@ -118,7 +149,7 @@ export function Onboarding() {
                                     placeholder="Seu e-mail"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                                     style={{
                                         backgroundColor: theme.bgInput,
                                         border: `1px solid ${theme.border}`,
@@ -126,18 +157,27 @@ export function Onboarding() {
                                     }}
                                 />
                             </div>
-                            <button
-                                disabled={!name.trim() || !email.includes('@')}
-                                onClick={() => setStep('subjects')}
-                                className="w-full py-4 rounded-2xl font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                                style={{ backgroundColor: theme.accent, color: '#fff' }}
-                            >
-                                Continuar <ChevronRight size={16} className="inline" />
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setStep('welcome')}
+                                    className="flex-1 py-3 rounded-2xl font-semibold text-sm cursor-pointer"
+                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary, border: `1px solid ${theme.border}` }}
+                                >
+                                    <ChevronLeft size={14} className="inline" /> Voltar
+                                </button>
+                                <button
+                                    disabled={!name.trim() || !email.includes('@')}
+                                    onClick={() => setStep('subjects')}
+                                    className="flex-1 py-3 rounded-2xl font-bold cursor-pointer disabled:opacity-40"
+                                    style={{ backgroundColor: theme.accent, color: '#fff' }}
+                                >
+                                    Continuar <ChevronRight size={14} className="inline" />
+                                </button>
+                            </div>
                         </>
                     )}
 
-                    {/* Step: Matérias */}
+                    {/* ── Step: Matérias ── */}
                     {step === 'subjects' && (
                         <>
                             <div>
@@ -148,14 +188,14 @@ export function Onboarding() {
                                     Selecione as que você mais precisa de ajuda.
                                 </p>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                 {ALL_SUBJECTS.map(s => {
                                     const selected = subjects.includes(s)
                                     return (
                                         <button
                                             key={s}
                                             onClick={() => toggleSubject(s)}
-                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer"
+                                            className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer"
                                             style={{
                                                 backgroundColor: selected ? theme.accentGlow : theme.bgInput,
                                                 border: `1px solid ${selected ? theme.accent : theme.border}`,
@@ -163,7 +203,7 @@ export function Onboarding() {
                                             }}
                                         >
                                             {SUBJECT_LABELS[s]}
-                                            {selected && <Check size={14} />}
+                                            {selected && <Check size={13} className="shrink-0" />}
                                         </button>
                                     )
                                 })}
@@ -171,15 +211,15 @@ export function Onboarding() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setStep('name')}
-                                    className="flex-1 py-3 rounded-2xl font-semibold text-sm transition-all cursor-pointer"
-                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary }}
+                                    className="flex-1 py-3 rounded-2xl font-semibold text-sm cursor-pointer"
+                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary, border: `1px solid ${theme.border}` }}
                                 >
                                     <ChevronLeft size={14} className="inline" /> Voltar
                                 </button>
                                 <button
                                     disabled={subjects.length === 0}
                                     onClick={() => setStep('difficulty')}
-                                    className="flex-1 py-3 rounded-2xl font-bold transition-all cursor-pointer disabled:opacity-40"
+                                    className="flex-1 py-3 rounded-2xl font-bold cursor-pointer disabled:opacity-40"
                                     style={{ backgroundColor: theme.accent, color: '#fff' }}
                                 >
                                     Continuar <ChevronRight size={14} className="inline" />
@@ -188,39 +228,57 @@ export function Onboarding() {
                         </>
                     )}
 
-                    {/* Step: Dificuldade */}
+                    {/* ── Step: Dificuldade por matéria ── */}
                     {step === 'difficulty' && (
                         <>
                             <div>
                                 <h2 className="text-xl font-bold mb-1" style={{ color: theme.textPrimary }}>
-                                    Qual seu nível de dificuldade?
+                                    Seu nível em cada matéria
                                 </h2>
                                 <p className="text-sm" style={{ color: theme.textSecondary }}>
                                     Isso ajuda o MentorIA a calibrar as explicações para você.
                                 </p>
                             </div>
-                            <div className="flex flex-col gap-2">
-                                {([1, 2, 3, 4, 5] as DifficultyLevel[]).map(d => (
-                                    <button
-                                        key={d}
-                                        onClick={() => setDifficulty(d)}
-                                        className="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all cursor-pointer"
-                                        style={{
-                                            backgroundColor: difficulty === d ? theme.accentGlow : theme.bgInput,
-                                            border: `1px solid ${difficulty === d ? theme.accent : theme.border}`,
-                                            color: difficulty === d ? theme.accentLight : theme.textSecondary,
-                                        }}
-                                    >
-                                        <span>{d}. {DIFFICULTY_LABELS[d]}</span>
-                                        {difficulty === d && <Check size={14} />}
-                                    </button>
-                                ))}
+
+                            <div className="flex flex-col gap-4 max-h-72 overflow-y-auto pr-1">
+                                {subjects.map(s => {
+                                    const current = difficulties[s] ?? 3
+                                    return (
+                                        <div key={s}>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                                                    {SUBJECT_LABELS[s]}
+                                                </span>
+                                                <span className="text-xs" style={{ color: theme.textMuted }}>
+                                                    {DIFFICULTY_LABELS[current]}
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-1.5">
+                                                {([1, 2, 3, 4, 5] as DifficultyLevel[]).map(d => (
+                                                    <button
+                                                        key={d}
+                                                        onClick={() => setSubjectDifficulty(s, d)}
+                                                        className="flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                                                        style={{
+                                                            backgroundColor: current === d ? theme.accent : theme.bgInput,
+                                                            color: current === d ? '#fff' : theme.textMuted,
+                                                            border: `1px solid ${current === d ? theme.accent : theme.border}`,
+                                                        }}
+                                                    >
+                                                        {d}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
+
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setStep('subjects')}
                                     className="flex-1 py-3 rounded-2xl font-semibold text-sm cursor-pointer"
-                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary }}
+                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary, border: `1px solid ${theme.border}` }}
                                 >
                                     <ChevronLeft size={14} className="inline" /> Voltar
                                 </button>
@@ -235,39 +293,52 @@ export function Onboarding() {
                         </>
                     )}
 
-                    {/* Step: Email dos pais */}
+                    {/* ── Step: Email dos responsáveis ── */}
                     {step === 'parent' && (
                         <>
                             <div>
                                 <h2 className="text-xl font-bold mb-1" style={{ color: theme.textPrimary }}>
-                                    E-mail dos seus pais
+                                    E-mail dos responsáveis
                                 </h2>
                                 <p className="text-sm" style={{ color: theme.textSecondary }}>
-                                    Vamos enviar um relatório semanal de progresso. Pode pular se preferir.
+                                    Enviaremos um relatório semanal de progresso. Pode pular se preferir.
                                 </p>
                             </div>
-                            <input
-                                type="email"
-                                placeholder="email.dos.pais@exemplo.com"
-                                value={parentEmail}
-                                onChange={e => setParentEmail(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                                style={{
-                                    backgroundColor: theme.bgInput,
-                                    border: `1px solid ${theme.border}`,
-                                    color: theme.textPrimary,
-                                }}
-                            />
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    type="email"
+                                    placeholder="email.responsavel@exemplo.com"
+                                    value={parentEmail}
+                                    onChange={e => {
+                                        setParentEmail(e.target.value)
+                                        setParentEmailError('')
+                                    }}
+                                    className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                                    style={{
+                                        backgroundColor: theme.bgInput,
+                                        border: `1px solid ${parentEmailError ? theme.danger : theme.border}`,
+                                        color: theme.textPrimary,
+                                    }}
+                                />
+                                {parentEmailError && (
+                                    <p className="text-xs px-1" style={{ color: theme.danger }}>
+                                        {parentEmailError}
+                                    </p>
+                                )}
+                            </div>
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setStep('difficulty')}
                                     className="flex-1 py-3 rounded-2xl font-semibold text-sm cursor-pointer"
-                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary }}
+                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary, border: `1px solid ${theme.border}` }}
                                 >
                                     <ChevronLeft size={14} className="inline" /> Voltar
                                 </button>
                                 <button
-                                    onClick={() => setStep('password')}
+                                    onClick={() => {
+                                        if (parentEmail && !validateParentEmail()) return
+                                        setStep('password')
+                                    }}
                                     className="flex-1 py-3 rounded-2xl font-bold cursor-pointer"
                                     style={{ backgroundColor: theme.accent, color: '#fff' }}
                                 >
@@ -277,7 +348,7 @@ export function Onboarding() {
                         </>
                     )}
 
-                    {/* Step: Senha */}
+                    {/* ── Step: Senha ── */}
                     {step === 'password' && (
                         <>
                             <div>
@@ -293,25 +364,24 @@ export function Onboarding() {
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && password.length >= 6 && !loading && handleFinish()}
                                 className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                                 style={{
                                     backgroundColor: theme.bgInput,
-                                    border: `1px solid ${theme.border}`,
+                                    border: `1px solid ${error ? theme.danger : theme.border}`,
                                     color: theme.textPrimary,
                                 }}
                             />
                             {error && (
                                 <p className="text-xs text-center" style={{ color: theme.danger }}>
-                                    {error.includes('email-already-in-use')
-                                        ? 'Este e-mail já está cadastrado.'
-                                        : 'Erro ao criar conta. Tente novamente.'}
+                                    {error}
                                 </p>
                             )}
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setStep('parent')}
                                     className="flex-1 py-3 rounded-2xl font-semibold text-sm cursor-pointer"
-                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary }}
+                                    style={{ backgroundColor: theme.bgInput, color: theme.textSecondary, border: `1px solid ${theme.border}` }}
                                 >
                                     <ChevronLeft size={14} className="inline" /> Voltar
                                 </button>
@@ -321,7 +391,7 @@ export function Onboarding() {
                                     className="flex-1 py-3 rounded-2xl font-bold cursor-pointer disabled:opacity-40"
                                     style={{ backgroundColor: theme.accent, color: '#fff' }}
                                 >
-                                    {loading ? 'Criando...' : 'Entrar! 🚀'}
+                                    {loading ? 'Criando conta...' : 'Entrar! 🚀'}
                                 </button>
                             </div>
                         </>

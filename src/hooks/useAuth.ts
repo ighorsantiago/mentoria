@@ -10,6 +10,22 @@ import { auth } from '../lib/firebase'
 import { getUserProfile, createUserProfile } from '../lib/firestore'
 import type { UserProfile, Subject, DifficultyLevel } from '../types'
 
+// Traduz código de erro do Firebase para mensagem amigável
+function parseFirebaseError(code: string): string {
+    const map: Record<string, string> = {
+        'auth/email-already-in-use': 'Este e-mail já está cadastrado.',
+        'auth/invalid-email': 'E-mail inválido.',
+        'auth/weak-password': 'Senha muito fraca. Use pelo menos 6 caracteres.',
+        'auth/user-not-found': 'E-mail não encontrado.',
+        'auth/wrong-password': 'Senha incorreta.',
+        'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
+        'auth/network-request-failed': 'Erro de conexão. Verifique sua internet.',
+        'auth/configuration-not-found': 'Firebase não configurado. Verifique as variáveis de ambiente.',
+        'auth/api-key-not-valid': 'Chave do Firebase inválida. Verifique o .env.',
+    }
+    return map[code] ?? `Erro inesperado (${code}). Tente novamente.`
+}
+
 interface AuthState {
     user: User | null
     profile: UserProfile | null
@@ -43,7 +59,7 @@ export function useAuth() {
         name: string,
         parentEmail: string,
         subjects: Subject[],
-        difficulty: DifficultyLevel,
+        difficulties: Partial<Record<Subject, DifficultyLevel>>,
     ) {
         setState(s => ({ ...s, loading: true, error: null }))
         try {
@@ -54,7 +70,7 @@ export function useAuth() {
                 email,
                 parentEmail,
                 subjects,
-                difficulty,
+                difficulties,
                 plan: 'free',
                 xp: 0,
                 level: 1,
@@ -65,7 +81,8 @@ export function useAuth() {
             await createUserProfile(profile)
             setState({ user, profile, loading: false, error: null })
         } catch (err: any) {
-            setState(s => ({ ...s, loading: false, error: err.message }))
+            const msg = parseFirebaseError(err.code ?? '')
+            setState(s => ({ ...s, loading: false, error: msg }))
         }
     }
 
@@ -76,7 +93,8 @@ export function useAuth() {
             const profile = await getUserProfile(user.uid)
             setState({ user, profile, loading: false, error: null })
         } catch (err: any) {
-            setState(s => ({ ...s, loading: false, error: err.message }))
+            const msg = parseFirebaseError(err.code ?? '')
+            setState(s => ({ ...s, loading: false, error: msg }))
         }
     }
 

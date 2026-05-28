@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import type { ChatMessage, Subject, QuizData } from '../types'
+import type { ChatMessage, Subject, QuizData, DifficultyLevel } from '../types'
 import { saveMessage, addXP, awardBadge } from '../lib/firestore'
 import { XP_REWARDS } from '../types'
 
@@ -7,14 +7,15 @@ interface UseChatOptions {
     uid: string
     conversationId: string
     subject: Subject
-    difficulty: number
+    difficulties: Partial<Record<Subject, DifficultyLevel>>
     studentName: string
 }
 
 // Quantas vezes o aluno repetiu a mesma dúvida antes de ativar o modo "simples"
 const CONFUSION_THRESHOLD = 2
 
-export function useChat({ uid, conversationId, subject, difficulty, studentName }: UseChatOptions) {
+export function useChat({ uid, conversationId, subject, difficulties, studentName }: UseChatOptions) {
+    const difficulty = difficulties[subject] ?? 3  // fallback para médio se não definido
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
