@@ -27,11 +27,23 @@ export function AppShell({ profile, onLogout, children }: AppShellProps) {
                 className="hidden md:flex flex-col w-64 shrink-0 border-r p-5 gap-6"
                 style={{ backgroundColor: theme.bgSidebar, borderColor: theme.border }}
             >
-                {/* Logo */}
-                <div className="mb-2">
+                {/* Logo + Streak */}
+                <div className="mb-2 flex items-center justify-between">
                     <span className="text-2xl font-extrabold" style={{ color: theme.accentLight }}>
                         Mentor<span style={{ color: theme.textPrimary }}>IA</span>
                     </span>
+                    {profile.streak > 0 && (
+                        <div
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl"
+                            style={{ backgroundColor: 'rgba(249,115,22,0.12)' }}
+                            title={`${profile.streak} dias seguidos`}
+                        >
+                            <Flame size={14} style={{ color: theme.streak }} />
+                            <span className="text-sm font-bold" style={{ color: theme.streak }}>
+                                {profile.streak}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Perfil + XP */}
@@ -73,15 +85,6 @@ export function AppShell({ profile, onLogout, children }: AppShellProps) {
                         </div>
                     </div>
 
-                    {/* Streak */}
-                    {profile.streak > 0 && (
-                        <div className="flex items-center gap-2 text-sm">
-                            <Flame size={16} style={{ color: theme.streak }} />
-                            <span style={{ color: theme.textSecondary }}>
-                                <span className="font-bold" style={{ color: theme.streak }}>{profile.streak}</span> dias seguidos
-                            </span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Nav */}

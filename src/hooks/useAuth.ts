@@ -123,6 +123,16 @@ export function useAuth() {
                 createdAt: new Date().toISOString(),
             }
             await createUserProfile(profile)
+
+            // Envia e-mail de boas-vindas aos responsáveis (não bloqueia o fluxo)
+            if (parentEmail) {
+                fetch('/api/email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'welcome', parentEmail, studentName: name }),
+                }).catch(() => {}) // silencioso — e-mail não é crítico
+            }
+
             setState({ user, profile, loading: false, error: null })
         } catch (err: any) {
             const msg = parseFirebaseError(err.code ?? '')

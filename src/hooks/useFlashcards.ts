@@ -1,5 +1,14 @@
 import { useState } from 'react'
 import type { Flashcard, Subject } from '../types'
+
+// Extrai JSON do texto — Claude às vezes envolve em ```json ... ```
+function extractJSON(text: string): string {
+    const block = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (block) return block[1].trim()
+    const obj = text.match(/\{[\s\S]*\}/)
+    if (obj) return obj[0]
+    return text
+}
 import {
     saveFlashcards,
     getFlashcardsBySubject,
@@ -55,7 +64,7 @@ As perguntas devem ser objetivas e as respostas concisas (máximo 2 frases).`,
 
             const data = await response.json()
             const raw: string = data.content?.[0]?.text ?? ''
-            const parsed = JSON.parse(raw)
+            const parsed = JSON.parse(extractJSON(raw))
 
             const newCards: Omit<Flashcard, 'id'>[] = parsed.flashcards.map((fc: any) => ({
                 subject,

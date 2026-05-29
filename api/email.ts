@@ -21,19 +21,67 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') return res.status(200).end()
     if (req.method !== 'POST') return res.status(405).end()
 
+    const { type, parentEmail, studentName } = req.body
+
+    if (!parentEmail || !studentName) {
+        return res.status(400).json({ error: 'Dados insuficientes' })
+    }
+
+    // ── E-mail de boas-vindas ──────────────────────────────────────────────
+    if (type === 'welcome') {
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8">
+        <style>
+          body { font-family: -apple-system, sans-serif; background: #f4f4f5; margin: 0; padding: 20px; }
+          .card { background: white; border-radius: 16px; padding: 32px; max-width: 520px; margin: 0 auto; }
+          .logo { font-size: 24px; font-weight: 900; color: #7C3AED; margin-bottom: 24px; }
+          .logo span { color: #18181B; }
+          h2 { color: #18181B; margin: 0 0 8px; }
+          p { color: #71717A; line-height: 1.6; margin: 0 0 16px; }
+          .highlight { background: #f5f3ff; border-left: 3px solid #7C3AED; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; color: #4C1D95; font-size: 14px; }
+          .footer { margin-top: 24px; font-size: 12px; color: #a1a1aa; text-align: center; }
+        </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="logo">Mentor<span>IA</span></div>
+            <h2>Bem-vindo ao MentorIA! 🎓</h2>
+            <p>O aluno <strong>${studentName}</strong> acabou de criar a conta no MentorIA, um tutor educacional com inteligência artificial.</p>
+            <div class="highlight">
+              ✅ Conta ativa e pronta para usar<br>
+              📊 Você receberá relatórios semanais de progresso neste e-mail<br>
+              🔥 Streak, XP e notas nos quizzes estarão no relatório
+            </div>
+            <p>O MentorIA ajuda ${studentName} a estudar com tutoria personalizada, flashcards gerados por IA e quizzes adaptativos — tudo no ritmo dele.</p>
+            <p>Qualquer dúvida, acesse <strong>mentoria-flame.vercel.app</strong>.</p>
+            <div class="footer">Sant.IA.Go · MentorIA — tutor educacional inteligente</div>
+          </div>
+        </body>
+        </html>`
+
+        try {
+            await resend.emails.send({
+                from: 'MentorIA <relatorios@mentoria.santiago.ai>',
+                to: parentEmail,
+                subject: `${studentName} acabou de entrar no MentorIA 🎓`,
+                html,
+            })
+            return res.status(200).json({ ok: true })
+        } catch (err: any) {
+            return res.status(500).json({ error: err.message })
+        }
+    }
+
+    // ── Relatório semanal ─────────────────────────────────────────────────
     const {
-        parentEmail,
-        studentName,
         studyMinutes,
         quizAverage,
         streak,
         xpEarned,
         weakPoints,
     } = req.body as WeeklyReportPayload
-
-    if (!parentEmail || !studentName) {
-        return res.status(400).json({ error: 'Dados insuficientes' })
-    }
 
     const html = `
     <!DOCTYPE html>

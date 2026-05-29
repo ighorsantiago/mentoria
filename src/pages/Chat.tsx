@@ -30,9 +30,17 @@ export function Chat({ profile }: ChatPageProps) {
 
     useEffect(() => {
         async function init() {
-            const id = await createConversation(profile.uid, selectedSubject, 'Sessão de tutoria')
-            setConversationId(id)
-            await updateStreak(profile.uid)
+            // Tenta salvar no Firestore, mas não bloqueia o chat se falhar
+            try {
+                const id = await createConversation(profile.uid, selectedSubject, 'Sessão de tutoria')
+                setConversationId(id)
+            } catch {
+                // Firestore indisponível — usa ID local temporário
+                setConversationId(`local_${Date.now()}`)
+            }
+            try {
+                await updateStreak(profile.uid)
+            } catch {}
             setInitialized(true)
         }
         init()

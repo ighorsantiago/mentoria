@@ -3,7 +3,7 @@ import { GraduationCap, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import { theme } from '../themes'
 import { useAuth } from '../hooks/useAuth'
 import type { Subject, DifficultyLevel } from '../types'
-import { SUBJECT_LABELS, DIFFICULTY_LABELS } from '../types'
+import { SUBJECT_LABELS } from '../types'
 
 type Step = 'welcome' | 'name' | 'subjects' | 'difficulty' | 'parent' | 'password'
 
@@ -245,13 +245,18 @@ export function Onboarding() {
                                     const current = difficulties[s] ?? 3
                                     return (
                                         <div key={s}>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                                                    {SUBJECT_LABELS[s]}
-                                                </span>
-                                                <span className="text-xs" style={{ color: theme.textMuted }}>
-                                                    {DIFFICULTY_LABELS[current]}
-                                                </span>
+                                            <p className="text-sm font-semibold mb-1.5" style={{ color: theme.textPrimary }}>
+                                                {SUBJECT_LABELS[s]}
+                                            </p>
+                                            {/* Labels Fácil / Médio / Difícil alinhados com os botões */}
+                                            <div className="flex gap-1.5 mb-1">
+                                                {([1, 2, 3, 4, 5] as DifficultyLevel[]).map(d => (
+                                                    <div key={d} className="flex-1 text-center">
+                                                        {d === 1 && <span className="text-xs" style={{ color: theme.success }}>Fácil</span>}
+                                                        {d === 3 && <span className="text-xs" style={{ color: theme.textMuted }}>Médio</span>}
+                                                        {d === 5 && <span className="text-xs" style={{ color: theme.danger }}>Difícil</span>}
+                                                    </div>
+                                                ))}
                                             </div>
                                             <div className="flex gap-1.5">
                                                 {([1, 2, 3, 4, 5] as DifficultyLevel[]).map(d => (
