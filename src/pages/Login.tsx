@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { GraduationCap } from 'lucide-react'
+import { GraduationCap, AlertCircle, Loader2 } from 'lucide-react'
 import { theme } from '../themes'
 import { useAuth } from '../hooks/useAuth'
 
@@ -12,6 +12,8 @@ export function Login() {
         e.preventDefault()
         await login(email, password)
     }
+
+    const hasError = !!error
 
     return (
         <div
@@ -50,7 +52,7 @@ export function Login() {
                         className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                         style={{
                             backgroundColor: theme.bgInput,
-                            border: `1px solid ${theme.border}`,
+                            border: `1px solid ${hasError ? theme.danger : theme.border}`,
                             color: theme.textPrimary,
                         }}
                         required
@@ -63,27 +65,43 @@ export function Login() {
                         className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                         style={{
                             backgroundColor: theme.bgInput,
-                            border: `1px solid ${theme.border}`,
+                            border: `1px solid ${hasError ? theme.danger : theme.border}`,
                             color: theme.textPrimary,
                         }}
                         required
                     />
 
-                    {error && (
-                        <p className="text-xs text-center" style={{ color: theme.danger }}>
-                            E-mail ou senha incorretos.
-                        </p>
+                    {/* Mensagem de erro com ícone */}
+                    {hasError && (
+                        <div
+                            className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm"
+                            style={{
+                                backgroundColor: 'rgba(239,68,68,0.10)',
+                                border: `1px solid ${theme.danger}`,
+                                color: theme.danger,
+                            }}
+                        >
+                            <AlertCircle size={15} className="shrink-0" />
+                            <span>{error}</span>
+                        </div>
                     )}
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 rounded-2xl font-bold transition-all cursor-pointer disabled:opacity-40"
+                        className="w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60"
                         style={{ backgroundColor: theme.accent, color: '#fff' }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = theme.accentLight)}
+                        onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = theme.accentLight)}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = theme.accent)}
                     >
-                        {loading ? 'Entrando...' : 'Entrar'}
+                        {loading ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" />
+                                Entrando...
+                            </>
+                        ) : (
+                            'Entrar'
+                        )}
                     </button>
                 </form>
 

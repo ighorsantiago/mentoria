@@ -32,14 +32,17 @@ function parseFirebaseError(code: string): string {
         'auth/email-already-in-use': 'Este e-mail já está cadastrado.',
         'auth/invalid-email': 'E-mail inválido.',
         'auth/weak-password': 'Senha muito fraca. Use pelo menos 6 caracteres.',
+        // Firebase SDK v10+ unifica user-not-found + wrong-password em invalid-credential
+        'auth/invalid-credential': 'E-mail ou senha incorretos.',
         'auth/user-not-found': 'E-mail não encontrado.',
         'auth/wrong-password': 'Senha incorreta.',
         'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
         'auth/network-request-failed': 'Erro de conexão. Verifique sua internet.',
         'auth/configuration-not-found': 'Firebase não configurado. Verifique as variáveis de ambiente.',
         'auth/api-key-not-valid': 'Chave do Firebase inválida. Verifique o .env.',
+        'auth/invalid-api-key': 'Chave do Firebase inválida. Verifique o .env.',
     }
-    return map[code] ?? `Erro inesperado (${code}). Tente novamente.`
+    return map[code] ?? 'E-mail ou senha incorretos.'
 }
 
 interface AuthState {
