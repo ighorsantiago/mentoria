@@ -1,9 +1,16 @@
 @import "tailwindcss";
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/*
+ * IMPORTANTE: margin e padding NÃO ficam aqui fora de layer.
+ * No Tailwind v4, utilities ficam em @layer utilities.
+ * Estilos "unlayered" têm prioridade MAIOR que qualquer layer no cascade CSS,
+ * mesmo com especificidade menor — isso faz * { padding: 0 } sobrescrever .px-8.
+ * O preflight do Tailwind já reseta margin/padding; box-sizing fica em @layer base.
+ */
+@layer base {
+    * {
+        box-sizing: border-box;
+    }
 }
 
 body {
