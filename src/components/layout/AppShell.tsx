@@ -32,18 +32,21 @@ export function AppShell({ profile, onLogout, children }: AppShellProps) {
                     <span className="text-2xl font-extrabold" style={{ color: theme.accentLight }}>
                         Mentor<span style={{ color: theme.textPrimary }}>IA</span>
                     </span>
-                    {profile.streak > 0 && (
-                        <div
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl"
-                            style={{ backgroundColor: 'rgba(249,115,22,0.12)' }}
-                            title={`${profile.streak} dias seguidos`}
+                    <div
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl"
+                        style={{
+                            backgroundColor: profile.streak > 0 ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.04)',
+                        }}
+                        title={profile.streak > 0 ? `${profile.streak} dias seguidos!` : 'Estude hoje para iniciar seu streak'}
+                    >
+                        <Flame size={14} style={{ color: profile.streak > 0 ? theme.streak : theme.textMuted }} />
+                        <span
+                            className="text-sm font-bold"
+                            style={{ color: profile.streak > 0 ? theme.streak : theme.textMuted }}
                         >
-                            <Flame size={14} style={{ color: theme.streak }} />
-                            <span className="text-sm font-bold" style={{ color: theme.streak }}>
-                                {profile.streak}
-                            </span>
-                        </div>
-                    )}
+                            {profile.streak}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Perfil + XP */}

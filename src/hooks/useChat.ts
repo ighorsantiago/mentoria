@@ -55,8 +55,10 @@ Diretrizes:
 
         const updatedMessages = [...messages, userMsg]
         setMessages(updatedMessages)
-        await saveMessage(uid, conversationId, userMsg)
-        await addXP(uid, XP_REWARDS.message_sent)
+
+        // Salva no Firestore em background — não bloqueia a chamada à IA
+        saveMessage(uid, conversationId, userMsg).catch(() => {})
+        addXP(uid, XP_REWARDS.message_sent).catch(() => {})
 
         // Verifica se o aluno está confuso repetidamente
         const lowerContent = content.toLowerCase()
@@ -126,7 +128,7 @@ Diretrizes:
             }
 
             setMessages(prev => [...prev, assistantMsg])
-            await saveMessage(uid, conversationId, assistantMsg)
+            saveMessage(uid, conversationId, assistantMsg).catch(() => {})
         } catch (err: any) {
             setError('Ops! Não consegui responder. Tente novamente.')
         } finally {
